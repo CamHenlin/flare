@@ -1,0 +1,187 @@
+html, body {
+	width: 100%;
+	margin: 0;
+}
+
+.tableContainer {
+	position: absolute;
+	min-width: 200px;
+	max-width: 300px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin: 5px;
+	box-shadow: 1px 1px 2px darkgray;
+}
+
+.tableHeader {
+	background-color: darkgray;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.tableColumnContainer {
+
+}
+
+.tableColumn {
+	background-color: darkgray;
+	padding: 5px;
+	color: white;
+	width: 150px;
+	position: relative;
+}
+
+.filterContainer {
+	position: absolute;
+	min-width: 200px;
+	max-width: 300px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin: 5px;
+	box-shadow: 1px 1px 2px darkblue;
+}
+
+.similarityHeader {
+	background-color: lightblue;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.similarityFormContainer {
+
+}
+
+.similarityContainer {
+	position: absolute;
+	min-width: 200px;
+	max-width: 300px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin: 5px;
+	box-shadow: 1px 1px 2px lightblue;
+}
+
+.filterHeader {
+	background-color: darkblue;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.filterFormContainer {
+
+}
+
+.bindingContainer {
+	position: absolute;
+	left: 800px;
+	min-width: 300px;
+	max-width: 400px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin: 5px;
+	box-shadow: 1px 1px 2px darkred;
+}
+
+.bindingHeader {
+	background-color: darkred;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.bindingElementsContainer {
+
+}
+
+.bindingColumn {
+	background-color: darkred;
+	padding: 5px;
+	color: white;
+	width: 290px;
+	position: relative;
+}
+
+#workspace {
+	position: absolute;
+	z-index: 10;
+	width: 90%;
+	height: 70%;
+	box-shadow: 1px 1px 2px lightgray;
+	border: 1px darkgray solid;
+	border-radius: 3px;
+	top: 6%;
+	left: 100px;
+	float: right;
+}
+
+#sidebar {
+	float: left;
+	position: absolute;
+	left: 5px;
+	top: 6%;
+	width: 95px;
+	height: 90%;
+}
+
+.sideTable {
+	height: 50px;
+	width: 75px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin-left: 5px;
+	margin-bottom: 5px;
+	text-align: center;
+	padding-top: 25px;
+	box-shadow: 1px 1px 2px lightgray;
+	background-color: #eee;
+}
+
+#runQuery {
+	height: 50px;
+	width: 75px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin-left: 10px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	text-align: center;
+	padding-top: 25px;
+	box-shadow: 1px 1px 2px lightgray;
+	background-color: #eee;
+	float: left;
+}
+
+.queryWindow {
+	position: absolute;
+	z-index: 10;
+	width: 90%;
+	height: 20%;
+	box-shadow: 1px 1px 2px lightgray;
+	border: 1px darkgray solid;
+	border-radius: 3px;
+	top: 78%;
+	left: 100px;
+	float: right;
+}
+
+.queryResults {
+	position: relative;
+	z-index: 10;
+	width: 90%;
+	height: 90%;
+	box-shadow: 1px 1px 2px lightgray;
+	margin-right: 10px;
+	border: 1px darkgray solid;
+	border-radius: 3px;
+	top: 5%;
+	float: right;
+	overflow: scroll;
+}
+
+.queryResult {
+	border-bottom: 1px lightgray solid;
+	margin-top: 5px;
+}
