@@ -4,11 +4,83 @@ from flask import send_from_directory
 from flask import request
 from flask import jsonify
 from crate import client
-import json
 from gensim import corpora, models, similarities
 
+import json
+import nltk
+
+#     __    ____  _________    __       ______  _______  ____  ____  ___________
+#    / /   / __ \/ ____/   |  / /      /  _/  |/  / __ \/ __ \/ __ \/_  __/ ___/
+#   / /   / / / / /   / /| | / /       / // /|_/ / /_/ / / / / /_/ / / /  \__ \
+#  / /___/ /_/ / /___/ ___ |/ /___   _/ // /  / / ____/ /_/ / _, _/ / /  ___/ /
+# /_____/\____/\____/_/  |_/_____/  /___/_/  /_/_/    \____/_/ |_| /_/  /____/
+#
+
+import sentiments
 
 app = Flask(__name__)
+
+#     _   ____  ________ __
+#    / | / / / /_  __/ //_/
+#   /  |/ / /   / / / ,<
+#  / /|  / /___/ / / /| |
+# /_/ |_/_____/_/ /_/ |_|
+#
+
+def bagOfWords(tweets):
+	wordsList = []
+	for (words, sentiment) in tweets:
+		wordsList.extend(words)
+	return wordsList
+
+def wordFeatures(wordList):
+	wordList = nltk.FreqDist(wordList)
+	wordFeatures = wordList.keys()
+	return wordFeatures
+
+def getFeatures(doc):
+	docWords = set(doc)
+	feat = {}
+	for word in wordFeatures:
+		feat['contains(%s)' % word] = (word in docWords)
+	return feat
+
+#     ____  ____  __  ___________________
+#    / __ \/ __ \/ / / /_  __/ ____/ ___/
+#   / /_/ / / / / / / / / / / __/  \__ \
+#  / _, _/ /_/ / /_/ / / / / /___ ___/ /
+# /_/ |_|\____/\____/ /_/ /_____//____/
+#
+
+@app.route('/sentimentquery')
+def sentimentQuery():
+	print 'fetching query results'
+	decoded = json.loads(request.data)
+
+	print 'query requested: '
+	print decoded
+
+	connection = client.connect('http://10.0.1.17:4200')
+	cursor = connection.cursor()
+
+	cursor.execute("select * from " + decoded['bindings'][0]['from']['tableName'] + " where " + decoded['bindings'][0]['from']['tableColumn'] + " like '%" + decoded['bindings'][0]['to']['query'] + "%'")
+	results = cursor.fetchall()
+
+	cursor.close()
+	connection.close()
+
+	corpusOfTweets = []
+
+	for (words, sentiment) in positiveTweets + negativeTweets:
+		wordsFiltered = [e.lower() for e in nltk.word_tokenize(words) if len(e) >= 3]
+		tweets.append((wordsFiltered, sentiment))
+
+	wordFeatures = wordFeatures(bagOfWords(corpusOfTweets))
+	training = nltk.classify.apply_features(getFeatures, corpusOfTweets)
+	classifier = nltk.NaiveBayesClassifier.train(training)
+
+	for status in result["statuses"]:
+		print("Tweet: {0} \n Sentiment: {1}".format(status["text"],	classifier.classify(extract_features(status["text"].split()))))
 
 @app.route('/')
 def root():
