@@ -3,7 +3,11 @@ html, body {
 	margin: 0;
 }
 
+div {
+}
+
 .tableContainer {
+	background-color: white;
 	position: absolute;
 	min-width: 200px;
 	max-width: 300px;
@@ -33,6 +37,7 @@ html, body {
 }
 
 .filterContainer {
+	background-color: white;
 	position: absolute;
 	min-width: 200px;
 	max-width: 300px;
@@ -54,14 +59,38 @@ html, body {
 }
 
 .similarityContainer {
+	background-color: white;
 	position: absolute;
-	min-width: 200px;
+	min-width: 240px;
 	max-width: 300px;
 	border-radius: 3px;
 	border: 1px darkgray solid;
 	margin: 5px;
 	box-shadow: 1px 1px 2px lightblue;
 }
+
+.sentimentHeader {
+	background-color: magenta;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.sentimentFormContainer {
+
+}
+
+.sentimentContainer {
+	background-color: white;
+	position: absolute;
+	min-width: 240px;
+	max-width: 360px;
+	border-radius: 3px;
+	border: 1px darkgray solid;
+	margin: 5px;
+	box-shadow: 1px 1px 2px magenta;
+}
+
 
 .filterHeader {
 	background-color: darkblue;
@@ -75,6 +104,7 @@ html, body {
 }
 
 .bindingContainer {
+	background-color: white;
 	position: absolute;
 	left: 800px;
 	min-width: 300px;

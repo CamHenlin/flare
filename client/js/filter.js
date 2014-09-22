@@ -10,7 +10,7 @@ var FilterView = Backbone.View.extend({
 	model: FilterModel,
 	template: _.template(' \
 		<div class="filterContainer">\
-			<div class="filterHeader"><span style="float: left; margin-right: 20px;">Filter - <%= column %></span><br></div> \
+			<div class="filterHeader"><span style="float: left; margin-right: 20px;">Filter - <%= column %></span><span style="margin-left: 20px;" id="remove">remove</span></div> \
 			<div class=filterFormContainer"> \
 				<label>&nbsp; contains </label><input type="checkbox" id="contains" checked><br> \
 				<label>&nbsp; equal to </label><input type="checkbox" id="exactlyEqualTo"><br> \
@@ -21,6 +21,10 @@ var FilterView = Backbone.View.extend({
 			</div> \
 		</div> \
 	'),
+	events: {
+		'click #remove' : 'remove',
+		'click .tableColumn' : 'bindColumn'
+	},
 	initialize: function() {
 		this.render();
 	},

@@ -14,6 +14,7 @@ var QueryView = Backbone.View.extend({
 		'click #runQuery' : 'runQuery'
 	},
 	runQuery: function() {
+		$('body').append('<div id="loading" style="width: 100%; height: 100%; position: absolute; left: 0px; top: 0px; z-index: 1000; background: #fff; opacity: 0.5; text-align: center;"><img style="top: 600px; opacity: 1; width: 60%; image-rendering: -webkit-optimize-contrast;" src="loading.gif" /></div>');
 		var postData = { 'bindings' : [] };
 		var i = 0;
 		bindList.forEach(function(binding) {
@@ -22,8 +23,25 @@ var QueryView = Backbone.View.extend({
 				'tableColumn': $(binding.from).attr('data-binding-col-title')
 			};
 
+			var type = '';
+			var el = binding.to;
+			while (type === '') {
+				console.log(el);
+				if ($(el).attr('class').indexOf('filter') > -1) {
+					type = 'filter';
+				} else if ($(el).attr('class').indexOf('similarity') > -1) {
+					type = 'similarity';
+				} else if ($(el).attr('class').indexOf('sentiment') > -1) {
+					type = 'sentiment';
+				} else {
+					console.log($(el).attr('class'));
+				}
+
+				el = $(el).parent()[0];
+			}
+
 			var to = {
-				'type': 'filter',
+				'type': type,
 				'query': (i === 0) ? $(binding.to).parent().find('#filterBy').val() : $(binding.to).parent().parent().find('#similarityString').val()
 			};
 
@@ -52,7 +70,9 @@ var QueryView = Backbone.View.extend({
 					$('#outtable').append('<tr><td class="queryResult">' + JSON.stringify(result) + '</td></tr>');
 				});
 
-				$.ajax({
+				$('#loading').remove();
+
+				/*$.ajax({
 					url: 'http://67.189.44.237:7000/gensimquery',
 					type: 'POST',
 					contentType: 'application/json;charset=UTF-8',
@@ -69,7 +89,11 @@ var QueryView = Backbone.View.extend({
 							console.log('------');
 						}
 					}
-				});
+				});*/
+			},
+			fail: function(data) {
+				alert(data);
+				$('#loading').remove();
 			}
 		});
 	},

@@ -52,6 +52,8 @@ var filterView = new FilterView({model : new FilterModel()});
 
 var similarityView = new SimilarityView({model : new SimilarityModel()});
 
+var sentimentView = new SentimentView({model : new SentimentModel()});
+
 (function() {
 	jsPlumb.setContainer($("#workspace"));
 	$.ajax({

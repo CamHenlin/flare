@@ -3,11 +3,17 @@ from flask import Flask
 from flask import send_from_directory
 from flask import request
 from flask import jsonify
+from flask import session
 from crate import client
 from gensim import corpora, models, similarities
-
+import string
 import json
 import nltk
+import pickle
+from nltk.tokenize import word_tokenize
+from nltk import NaiveBayesClassifier
+
+from itertools import chain
 
 #     __    ____  _________    __       ______  _______  ____  ____  ___________
 #    / /   / __ \/ ____/   |  / /      /  _/  |/  / __ \/ __ \/ __ \/_  __/ ___/
@@ -16,7 +22,7 @@ import nltk
 # /_____/\____/\____/_/  |_/_____/  /___/_/  /_/_/    \____/_/ |_| /_/  /____/
 #
 
-import sentiments
+from sentiments import *
 
 app = Flask(__name__)
 
@@ -26,6 +32,23 @@ app = Flask(__name__)
 #  / /|  / /___/ / / /| |
 # /_/ |_/_____/_/ /_/ |_|
 #
+
+print 'initializing nltk vocabulary classifier'
+
+classifier = None
+vocabulary = set(chain(*[word_tokenize(i[0].lower()) for i in training_data]))
+
+with open('nltk_classifier','rb') as nltk_classifier:
+    classifier = pickle.load(nltk_classifier)
+
+if (classifier == None):
+	feature_set = [ ({ i : (i in word_tokenize(sentence.lower())) for i in vocabulary if len(i) > 3}, tag) for sentence, tag in training_data ]
+	classifier = NaiveBayesClassifier.train(feature_set)
+
+	with open('nltk_classifier', 'wb') as nltk_classifier:
+		pickle.dump(classifier, nltk_classifier)
+else:
+	print 'loaded prior clasification file'
 
 def bagOfWords(tweets):
 	wordsList = []
@@ -51,36 +74,6 @@ def getFeatures(doc):
 #  / _, _/ /_/ / /_/ / / / / /___ ___/ /
 # /_/ |_|\____/\____/ /_/ /_____//____/
 #
-
-@app.route('/sentimentquery')
-def sentimentQuery():
-	print 'fetching query results'
-	decoded = json.loads(request.data)
-
-	print 'query requested: '
-	print decoded
-
-	connection = client.connect('http://10.0.1.17:4200')
-	cursor = connection.cursor()
-
-	cursor.execute("select * from " + decoded['bindings'][0]['from']['tableName'] + " where " + decoded['bindings'][0]['from']['tableColumn'] + " like '%" + decoded['bindings'][0]['to']['query'] + "%'")
-	results = cursor.fetchall()
-
-	cursor.close()
-	connection.close()
-
-	corpusOfTweets = []
-
-	for (words, sentiment) in positiveTweets + negativeTweets:
-		wordsFiltered = [e.lower() for e in nltk.word_tokenize(words) if len(e) >= 3]
-		tweets.append((wordsFiltered, sentiment))
-
-	wordFeatures = wordFeatures(bagOfWords(corpusOfTweets))
-	training = nltk.classify.apply_features(getFeatures, corpusOfTweets)
-	classifier = nltk.NaiveBayesClassifier.train(training)
-
-	for status in result["statuses"]:
-		print("Tweet: {0} \n Sentiment: {1}".format(status["text"],	classifier.classify(extract_features(status["text"].split()))))
 
 @app.route('/')
 def root():
@@ -137,34 +130,89 @@ def queryData():
 	print 'query requested: '
 	print decoded
 
-	connection = client.connect('http://10.0.1.17:4200')
-	cursor = connection.cursor()
+	session['active_data'] = []
+	session['data_fields'] = []
 
-	cursor.execute("select * from " + decoded['bindings'][0]['from']['tableName'] + " where " + decoded['bindings'][0]['from']['tableColumn'] + " like '%" + decoded['bindings'][0]['to']['query'] + "%'")
-	results = cursor.fetchall()
+	limit = 0
+	for binding in decoded['bindings']:
+		if (binding['to']['type'] == 'sentiment'):
+			limit = 100
 
-	cursor.close()
-	connection.close()
+	for binding in decoded['bindings']:
+		if (binding['to']['type'] == 'filter'):
+			select_from_table(binding, limit)
+		elif (binding['to']['type'] == 'similarity'):
+			gensim_on_results(binding)
+		elif (binding['to']['type'] == 'sentiment'):
+			sentiment_on_results(binding)
+
+
 	print 'returning query results'
-	return jsonify({ 'results' : results })
+	return jsonify({ 'results' : session['active_data'][0] })
 
-@app.route('/gensimquery', methods = ['POST'])
-def gensimQuery():
-	print 'fetching gensim results'
-	similarityQueryColumn = 'text' # this will be user settable in the future
-
-	decoded = json.loads(request.data)
-	print 'gensim similarity requested: '
-	print decoded
-
+def select_from_table(binding, limit):
 	connection = client.connect('http://10.0.1.17:4200')
 	cursor = connection.cursor()
 
-	cursor.execute("select * from " + decoded['bindings'][0]['from']['tableName'] + " where " + decoded['bindings'][0]['from']['tableColumn'] + " like '%" + decoded['bindings'][0]['to']['query'] + "%'")
+	if (limit == 0):
+		cursor.execute("select * from " + binding['from']['tableName'] + " where " + binding['from']['tableColumn'] + " like '%" + binding['to']['query'] + "%'")
+	else:
+		cursor.execute("select * from " + binding['from']['tableName'] + " where " + binding['from']['tableColumn'] + " like '%" + binding['to']['query'] + "%' limit " + str(limit))
+
 	results = cursor.fetchall()
 
 	num_fields = len(cursor.description)
 	field_names = [i[0] for i in cursor.description]
+
+	session['active_data'].append(results)
+	session['data_fields'].append(field_names)
+
+	cursor.close()
+	connection.close()
+
+def sentiment_on_results(binding):
+	print 'fetching sentiment on results'
+	print binding
+	sentimentQueryColumn =  binding['from']['tableColumn']
+
+	results = session['active_data'][0]
+	field_names = session['data_fields'][0]
+
+	sentimentQueryColumnInt = 0
+	for field_name in field_names:
+		if field_name == sentimentQueryColumn:
+			break
+		else:
+			sentimentQueryColumnInt = sentimentQueryColumnInt + 1
+
+	out_results = []
+	count = 0
+	stoplist = set('a able about across after all almost also am among an and any are as at be because been but by can cannot could dear did do does either else ever every for from get got had has have he her hers him his how however i if in into is it its just least let like likely may me might most must my neither no nor not of off often on only or other our own rather said say says she should since so some than that the their them then there these they this tis to too twas us wants was we were what when where which while who whom why will with would yet you your'.split())
+
+	for result in results:
+		print 'analyzing sentiment on ' + str(count) + ' of ' + str(len(results))
+		sentence = result[sentimentQueryColumnInt].lower()
+
+		for s in stoplist:
+			string.replace(sentence, s, "")
+
+		sentence = { i: (i in word_tokenize(sentence)) for i in vocabulary if len(i) > 3 }
+
+		result.append(classifier.classify(sentence))
+		out_results.append(result)
+		count = count + 1
+
+	session['active_data'][0] = out_results
+
+def gensim_on_results(binding):
+	print 'fetching gensim results'
+	similarityQueryColumn =  binding['from']['tableColumn']
+
+	print 'gensim similarity requested: '
+	print binding
+
+	results = session['active_data'][0]
+	field_names = session['data_fields'][0]
 
 	similarityQueryColumnInt = 0
 	for field_name in field_names:
@@ -177,11 +225,8 @@ def gensimQuery():
 	for result in results:
 		result_documents.append(result[similarityQueryColumnInt])
 
-	cursor.close()
-	connection.close()
-
 	# remove common words and tokenize
-	stoplist = set('for a of the and to in'.split())
+	stoplist = set('a able about across after all almost also am among an and any are as at be because been but by can cannot could dear did do does either else ever every for from get got had has have he her hers him his how however i if in into is it its just least let like likely may me might most must my neither no nor not of off often on only or other our own rather said say says she should since so some than that the their them then there these they this tis to too twas us wants was we were what when where which while who whom why will with would yet you your'.split())
 	texts = [[word for word in unicode(document).lower().split() if word not in stoplist]
 		for document in result_documents]
 
@@ -196,7 +241,7 @@ def gensimQuery():
 
 	lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=2)
 
-	vec_bow = dictionary.doc2bow(unicode(decoded['bindings'][1]['to']['query']).lower().split())
+	vec_bow = dictionary.doc2bow(unicode(binding['to']['query']).lower().split())
 	vec_lsi = lsi[vec_bow] # convert the query to LSI space
 
 	index = similarities.MatrixSimilarity(lsi[corpus])
@@ -219,7 +264,12 @@ def gensimQuery():
 		sims_count = sims_count + 1
 
 	print 'returning gensim results'
-	return jsonify({ 'results' : out_results })
+	print out_results
+
+	session['active_data'][0] = out_results
+
+	return
 
 if __name__ == '__main__':
+	app.secret_key = 'keyboard cat'
 	app.run(debug = True, host='0.0.0.0', port = 7000)
