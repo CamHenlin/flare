@@ -5,9 +5,29 @@ var FilterModel = Backbone.Model.extend({
 	}
 });
 
-var FilterView = Backbone.View.extend({
+var FilterButtonView = Backbone.View.extend({
 	tagName: 'span',
 	model: FilterModel,
+	template: _.template(' \
+		<div class="toolButton">\
+			Filter \
+		</div> \
+	'),
+	events: {
+		'click .toolButton' : function() {
+			new FilterView({model : new FilterModel()});
+		},
+	},
+	initialize: function() {
+		this.render();
+	},
+	render: function() {
+		this.$el.html(this.template);
+	}
+});
+
+var FilterView = Backbone.View.extend({
+ 	model: FilterModel,
 	template: _.template(' \
 		<div class="filterContainer">\
 			<div class="filterHeader"><span style="float: left; margin-right: 20px;">Filter - <%= column %></span><span style="margin-left: 20px;" id="remove">remove</span></div> \

@@ -1,20 +1,40 @@
 html, body {
 	width: 100%;
+	height: 100%;
 	margin: 0;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
+
+body {
+	background-color: gray;
+	overflow-x: hidden;
+}
+
+
 
 div {
 }
 
+.title {
+	width: 100px;
+	float: left;
+	margin-left: 10px;
+	margin-top: 5px;
+	font-size: 60px;
+	font-style: italic;
+	color: #d20408;
+	-webkit-text-stroke: 1px #f31519;;
+	text-shadow: 1px 1px white;
+}
+
 .tableContainer {
 	background-color: white;
-	position: absolute;
 	min-width: 200px;
 	max-width: 300px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px darkgray solid;
 	margin: 5px;
-	box-shadow: 1px 1px 2px darkgray;
+	box-shadow: 1px 1px 2px lightgray;
 }
 
 .tableHeader {
@@ -34,17 +54,17 @@ div {
 	color: white;
 	width: 150px;
 	position: relative;
+	border-bottom: 1px gray solid;
 }
 
 .filterContainer {
 	background-color: white;
-	position: absolute;
 	min-width: 200px;
 	max-width: 300px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px darkblue solid;
 	margin: 5px;
-	box-shadow: 1px 1px 2px darkblue;
+	box-shadow: 1px 1px 2px lightgray;
 }
 
 .similarityHeader {
@@ -60,13 +80,12 @@ div {
 
 .similarityContainer {
 	background-color: white;
-	position: absolute;
 	min-width: 240px;
 	max-width: 300px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px lightblue solid;
 	margin: 5px;
-	box-shadow: 1px 1px 2px lightblue;
+	box-shadow: 1px 1px 2px lightgray;
 }
 
 .sentimentHeader {
@@ -82,13 +101,12 @@ div {
 
 .sentimentContainer {
 	background-color: white;
-	position: absolute;
 	min-width: 240px;
 	max-width: 360px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px magenta solid;
 	margin: 5px;
-	box-shadow: 1px 1px 2px magenta;
+	box-shadow: 1px 1px 2px lightgray;
 }
 
 
@@ -104,15 +122,20 @@ div {
 }
 
 .bindingContainer {
+	z-index: 2;
 	background-color: white;
-	position: absolute;
-	left: 800px;
+	position: fixed;
+	left: 0px;
+	top: 80%;
+	height: 200px;
+	overflow: scroll;
+	float: right;
 	min-width: 300px;
 	max-width: 400px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px darkred solid;
 	margin: 5px;
-	box-shadow: 1px 1px 2px darkred;
+	box-shadow: 1px 1px 2px lightgray;
 }
 
 .bindingHeader {
@@ -135,16 +158,14 @@ div {
 }
 
 #workspace {
-	position: absolute;
-	z-index: 10;
 	width: 90%;
-	height: 70%;
+	height: 79%;
 	box-shadow: 1px 1px 2px lightgray;
-	border: 1px darkgray solid;
-	border-radius: 3px;
-	top: 6%;
+	border: 2px darkgray solid;
+	top: 110px;
 	left: 100px;
 	float: right;
+	background-color: white;
 }
 
 #sidebar {
@@ -153,27 +174,43 @@ div {
 	left: 5px;
 	top: 6%;
 	width: 95px;
-	height: 90%;
+	color: white;
 }
 
 .sideTable {
 	height: 50px;
 	width: 75px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px lightgray solid;
 	margin-left: 5px;
 	margin-bottom: 5px;
 	text-align: center;
 	padding-top: 25px;
 	box-shadow: 1px 1px 2px lightgray;
 	background-color: #eee;
+	color: black;
 }
 
 #runQuery {
 	height: 50px;
 	width: 75px;
 	border-radius: 3px;
-	border: 1px darkgray solid;
+	border: 2px lightgray solid;
+	margin-left: 10px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	text-align: center;
+	padding-top: 25px;
+	box-shadow: 1px 1px 2px lightgray;
+	background-color: #eee;
+	float: left;
+}
+
+#visualizeQuery {
+	height: 50px;
+	width: 75px;
+	border-radius: 3px;
+	border: 2px lightgray solid;
 	margin-left: 10px;
 	margin-bottom: 10px;
 	margin-top: 10px;
@@ -185,33 +222,44 @@ div {
 }
 
 .queryWindow {
-	position: absolute;
-	z-index: 10;
 	width: 90%;
 	height: 20%;
 	box-shadow: 1px 1px 2px lightgray;
-	border: 1px darkgray solid;
-	border-radius: 3px;
-	top: 78%;
+	border: 2px darkgray solid;
 	left: 100px;
 	float: right;
+    resize: vertical;
+    overflow: scroll;
+    background-color: white;
 }
 
 .queryResults {
 	position: relative;
-	z-index: 10;
 	width: 90%;
-	height: 90%;
 	box-shadow: 1px 1px 2px lightgray;
 	margin-right: 10px;
-	border: 1px darkgray solid;
+	border: 2px darkgray solid;
 	border-radius: 3px;
-	top: 5%;
+	margin-top: 10px;
 	float: right;
-	overflow: scroll;
+	overflow-x: scroll;
 }
 
 .queryResult {
 	border-bottom: 1px lightgray solid;
 	margin-top: 5px;
+}
+
+.toolButton {
+	height: 50px;
+	width: 75px;
+	border-radius: 3px;
+	border: 2px lightgray solid;
+	margin-left: 5px;
+	margin-bottom: 5px;
+	text-align: center;
+	padding-top: 25px;
+	box-shadow: 1px 1px 2px lightgray;
+	background-color: #eee;
+	color: black;
 }

@@ -5,6 +5,7 @@ var QueryView = Backbone.View.extend({
 		<div class="queryWindow"> \
 			<div style="float: left;"> \
 				<div id="runQuery">run query</div><br /> \
+				<div id="visualizeQuery">visualize</div><br /> \
 				<div id="resultCount" class="" style="float: left; width: 75px; margin-left: 10px;"></div> \
 			</div> \
 			<div class="queryResults" id="queryResults"></div> \
@@ -103,6 +104,6 @@ var QueryView = Backbone.View.extend({
 	render: function() {
 		this.$el.html(this.template());
 		console.log(this.$el);
-		$('body').append(this.$el);
+		$('body').prepend(this.$el);
 	}
 });

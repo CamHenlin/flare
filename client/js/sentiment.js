@@ -5,6 +5,27 @@ var SentimentModel = Backbone.Model.extend({
 	}
 });
 
+
+var SentimentButtonView = Backbone.View.extend({
+	model: FilterModel,
+	template: _.template(' \
+		<div class="toolButton">\
+			Sentiment \
+		</div> \
+	'),
+	events: {
+		'click .toolButton' : function() {
+			new SentimentView({model : new SentimentModel()});
+		},
+	},
+	initialize: function() {
+		this.render();
+	},
+	render: function() {
+		this.$el.html(this.template);
+	}
+});
+
 var SentimentView = Backbone.View.extend({
 	tagName: 'span',
 	model: FilterModel,

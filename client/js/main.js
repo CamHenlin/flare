@@ -1,4 +1,6 @@
-
+$(document).click(function() {
+	jsPlumb.repaintEverything();
+});
 
 function findTableTitle(el) {
 	if (typeof($(el).attr('data-binding-table-title')) !== "undefined") {
@@ -41,21 +43,21 @@ function Binding(from, to) {
 		"to" :  $(to)
 	};
 }
-
-var queryView = new QueryView({});
-
-var tableCollection = new TableCollection();
-
 var bindingView = new BindingView({});
-
+/*
 var filterView = new FilterView({model : new FilterModel()});
 
 var similarityView = new SimilarityView({model : new SimilarityModel()});
 
-var sentimentView = new SentimentView({model : new SentimentModel()});
+var sentimentView = new SentimentView({model : new SentimentModel()});*/
 
 (function() {
-	jsPlumb.setContainer($("#workspace"));
+	var queryView = new QueryView({});
+
+	var tableCollection = new TableCollection();
+
+
+	jsPlumb.setContainer($('body'));
 	$.ajax({
 		url: 'http://67.189.44.237:7000/tables',
 		type: 'GET',
@@ -69,6 +71,10 @@ var sentimentView = new SentimentView({model : new SentimentModel()});
 						//tdata = JSON.parse(tdata);
 						console.log(tableCollection);
 						tableCollection.add(new TableModel({ tableTitle: table, tableColumns: tdata.columns }));
+						setTimeout(function() {
+							$('#loading').remove();
+						}, 500);
+
 					}
 				});
 			}.bind(tableCollection));

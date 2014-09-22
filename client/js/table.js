@@ -11,7 +11,6 @@ var TableCollection = Backbone.Collection.extend({
 });
 
 var TableView = Backbone.View.extend({
-	tagName: 'span',
 	model: TableModel,
 	template: _.template(' \
 		<div class="tableContainer" data-binding-table-title="<%= tableTitle %>"> \
@@ -53,8 +52,6 @@ var TableView = Backbone.View.extend({
 });
 
 var SecondaryTableView = Backbone.View.extend({
-	tagName: 'span',
-	model: TableModel,
 	template: _.template(' \
 		<div class="sideTable"><%= tableTitle %></div> \
 	'),
@@ -89,24 +86,29 @@ var SecondaryTableView = Backbone.View.extend({
 });
 
 var TablesView = Backbone.View.extend({
-	el: '#container',
+	el: '#workspace',
 	initialize: function() {
 		console.log(this.collection);
 		this.collection.bind('add', this.render.bind(this)); // test: tableCollection.add(new TableModel({ tableTitle: 'test', tableColumns: ['1', '2'] }));
 		this.render();
 	},
 	render: function() {
-		$('#container').empty();
 		$('#sidebar').empty();
+		$('#sidebar').prepend('<h3>tables</h3>');
 		console.log(this.collection);
 		this.collection.forEach(function(table) {
 			var tableView = new TableView({ model: table });
 			console.log(this.el);
-			$('#container').append(tableView.el);
+			$('#workspace').append(tableView.el);
 
 			var secondaryTableView = new SecondaryTableView({ model: table });
 			console.log(this.el);
 			$('#sidebar').append(secondaryTableView.el);
 		});
+		$('#sidebar').append('<h3>tools</h3>');
+		$('#sidebar').append((new FilterButtonView({})).el);
+		$('#sidebar').append((new SentimentButtonView({})).el);
+		$('#sidebar').append((new SimilarityButtonView({})).el);
+		$('#sidebar').append((new BindingClearButtonView({})).el);
 	}
 });

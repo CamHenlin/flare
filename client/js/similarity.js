@@ -5,6 +5,28 @@ var SimilarityModel = Backbone.Model.extend({
 	}
 });
 
+
+var SimilarityButtonView = Backbone.View.extend({
+	tagName: 'span',
+	model: SimilarityModel,
+	template: _.template(' \
+		<div class="toolButton">\
+			Similarity \
+		</div> \
+	'),
+	events: {
+		'click .toolButton' : function() {
+			new SimilarityView({model : new FilterModel()});
+		},
+	},
+	initialize: function() {
+		this.render();
+	},
+	render: function() {
+		this.$el.html(this.template);
+	}
+});
+
 var SimilarityView = Backbone.View.extend({
 	tagName: 'span',
 	model: FilterModel,
