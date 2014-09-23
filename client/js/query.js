@@ -12,12 +12,16 @@ var QueryView = Backbone.View.extend({
 		</div> \
 	'),
 	events: {
-		'click #runQuery' : 'runQuery'
+		'click #runQuery' : 'runQuery',
+		'click #visualizeQuery' : function() {
+			new VisualizationView({});
+		}
 	},
 	runQuery: function() {
 		$('body').append('<div id="loading" style="width: 100%; height: 100%; position: absolute; left: 0px; top: 0px; z-index: 1000; background: #fff; opacity: 0.5; text-align: center;"><img style="top: 600px; opacity: 1; width: 60%; image-rendering: -webkit-optimize-contrast;" src="loading.gif" /></div>');
 		var postData = { 'bindings' : [] };
 		var i = 0;
+		var tableTitle;
 		bindList.forEach(function(binding) {
 			var from = {
 				'tableName': findTableTitle(binding.from),
@@ -32,8 +36,10 @@ var QueryView = Backbone.View.extend({
 					type = 'filter';
 				} else if ($(el).attr('class').indexOf('similarity') > -1) {
 					type = 'similarity';
+					tables[0].tableColumns.push(type);
 				} else if ($(el).attr('class').indexOf('sentiment') > -1) {
 					type = 'sentiment';
+					tables[0].tableColumns.push(type);
 				} else {
 					console.log($(el).attr('class'));
 				}
@@ -63,34 +69,28 @@ var QueryView = Backbone.View.extend({
 			success: function(data) {
 				//tdata = JSON.parse(tdata);
 				console.log(data);
+				resultData = data;
 				// $('#queryResults').append(JSON.stringify(data.results));
 
 				$('#resultCount').text(data.results.length + ' results');
-				$('#queryResults').html('<table id="outtable"><tr><th>query result</th><th>score</th></table>');
-				data.results.forEach(function(result) {
-					$('#outtable').append('<tr><td class="queryResult">' + JSON.stringify(result) + '</td></tr>');
-				});
-
-				$('#loading').remove();
-
-				/*$.ajax({
-					url: 'http://67.189.44.237:7000/gensimquery',
-					type: 'POST',
-					contentType: 'application/json;charset=UTF-8',
-					data: JSON.stringify(postData, null, '\t'),
-					success: function(gensimdata) {
-						console.log(gensimdata);
-						console.log('gensimdata received');
-						for (var i = 0; i < gensimdata.results.length; i++) {
-							var gensimres = gensimdata.results[i];
-							console.log('------');
-							console.log($('.queryResult')[i]);
-							console.log(gensimres);
-							$($('.queryResult')[i]).after('<td>' + gensimres[gensimres.length - 1][1] + '</td>');
-							console.log('------');
-						}
+				var table = '<table id="outtable"><tr>';
+				for (var i in tables[0].tableColumns) {
+					if (tables[0].tableColumns[i].indexOf('[') !== -1) { continue; } // throw out object children
+					table += '<th>' + tables[0].tableColumns[i] + '</th>';
+				}
+				table += '</tr>';
+				for (i in data.results) {
+					result = data.results[i];
+					var row = '<tr>';
+					$('#outtable').append('<tr>');
+					for (var j in result) {
+						row += '<td class="queryResult">' + JSON.stringify(result[j]) + '</td>';
 					}
-				});*/
+					table += row + '</tr>';
+				}
+				console.log(table);
+				$('#queryResults').html(table += '</table>');
+				$('#loading').remove();
 			},
 			fail: function(data) {
 				alert(data);

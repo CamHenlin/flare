@@ -1,6 +1,4 @@
-$(document).click(function() {
-	jsPlumb.repaintEverything();
-});
+
 
 function findTableTitle(el) {
 	if (typeof($(el).attr('data-binding-table-title')) !== "undefined") {
@@ -33,7 +31,7 @@ var clickHandler = function(evt) {
 };
 
 /*
-	bindings
+	bindings + globals
  */
 
 var bindList = [];
@@ -44,6 +42,10 @@ function Binding(from, to) {
 	};
 }
 var bindingView = new BindingView({});
+
+var resultData = [];
+var tables = [];
+
 /*
 var filterView = new FilterView({model : new FilterModel()});
 
@@ -70,6 +72,7 @@ var sentimentView = new SentimentView({model : new SentimentModel()});*/
 					success: function(tdata) {
 						//tdata = JSON.parse(tdata);
 						console.log(tableCollection);
+						tables.push({ tableTitle: table, tableColumns: tdata.columns });
 						tableCollection.add(new TableModel({ tableTitle: table, tableColumns: tdata.columns }));
 						setTimeout(function() {
 							$('#loading').remove();
@@ -85,3 +88,7 @@ var sentimentView = new SentimentView({model : new SentimentModel()});*/
 		}
 	});
 })();
+
+$(document).click(function() {
+	jsPlumb.repaintEverything();
+});

@@ -5,6 +5,7 @@ from flask import request
 from flask import jsonify
 from flask import session
 from crate import client
+from multiprocessing import Process, Queue
 from gensim import corpora, models, similarities
 import string
 import json
@@ -67,6 +68,44 @@ def getFeatures(doc):
 	for word in wordFeatures:
 		feat['contains(%s)' % word] = (word in docWords)
 	return feat
+
+
+import os
+import re
+import subprocess
+
+def available_cpu_count():
+    """ Number of available virtual or physical CPUs on this system, i.e.
+    user/real as output by time(1) when called with an optimally scaling
+    userspace-only program"""
+
+    # cpuset
+    # cpuset may restrict the number of *available* processors
+    try:
+        m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
+                      open('/proc/self/status').read())
+        if m:
+            res = bin(int(m.group(1).replace(',', ''), 16)).count('1')
+            if res > 0:
+                return res
+    except IOError:
+        pass
+
+    # Python 2.6+
+    try:
+        import multiprocessing
+        return multiprocessing.cpu_count()
+    except (ImportError, NotImplementedError):
+        pass
+
+    # http://code.google.com/p/psutil/
+    try:
+        import psutil
+        return psutil.NUM_CPUS
+    except (ImportError, AttributeError):
+        pass
+
+print 'running on ' + str(available_cpu_count()) + ' cores'
 
 #     ____  ____  __  ___________________
 #    / __ \/ __ \/ / / /_  __/ ____/ ___/
@@ -136,7 +175,7 @@ def queryData():
 	limit = 0
 	for binding in decoded['bindings']:
 		if (binding['to']['type'] == 'sentiment'):
-			limit = 100
+			limit = 500
 
 	for binding in decoded['bindings']:
 		if (binding['to']['type'] == 'filter'):
@@ -170,6 +209,10 @@ def select_from_table(binding, limit):
 	cursor.close()
 	connection.close()
 
+def split_list(alist, wanted_parts=1):
+	length = len(alist)
+	return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] for i in range(wanted_parts) ]
+
 def sentiment_on_results(binding):
 	print 'fetching sentiment on results'
 	print binding
@@ -185,12 +228,35 @@ def sentiment_on_results(binding):
 		else:
 			sentimentQueryColumnInt = sentimentQueryColumnInt + 1
 
-	out_results = []
 	count = 0
-	stoplist = set('a able about across after all almost also am among an and any are as at be because been but by can cannot could dear did do does either else ever every for from get got had has have he her hers him his how however i if in into is it its just least let like likely may me might most must my neither no nor not of off often on only or other our own rather said say says she should since so some than that the their them then there these they this tis to too twas us wants was we were what when where which while who whom why will with would yet you your'.split())
+	worker_processes = []
+	worker_queues = []
+	out_results = []
 
+	for result in split_list(results, available_cpu_count()):
+		queue = Queue()
+		worker = Process(target=sentiment_worker, args=(queue, sentimentQueryColumnInt, result))
+		worker.start()
+		worker_processes.append(worker)
+		worker_queues.append(queue)
+
+	for worker in worker_processes:
+		count = count + 1
+		print 'returning res ' + str(count) + ' of ' + str(len(worker_processes))
+		worker.join()
+
+	for queue in worker_queues:
+		for i in range(0, (len(results) / available_cpu_count()) + 1):
+			out_results.append(queue.get())
+
+	session['active_data'][0] = out_results
+
+out_results = []
+
+stoplist = set('a able about across after all almost also am among an and any are as at be because been but by can cannot could dear did do does either else ever every for from get got had has have he her hers him his how however i if in into is it its just least let like likely may me might most must my neither no nor not of off often on only or other our own rather said say says she should since so some than that the their them then there these they this tis to too twas us wants was we were what when where which while who whom why will with would yet you your'.split())
+
+def sentiment_worker(queue, sentimentQueryColumnInt, results):
 	for result in results:
-		print 'analyzing sentiment on ' + str(count) + ' of ' + str(len(results))
 		sentence = result[sentimentQueryColumnInt].lower()
 
 		for s in stoplist:
@@ -199,10 +265,11 @@ def sentiment_on_results(binding):
 		sentence = { i: (i in word_tokenize(sentence)) for i in vocabulary if len(i) > 3 }
 
 		result.append(classifier.classify(sentence))
-		out_results.append(result)
-		count = count + 1
-
-	session['active_data'][0] = out_results
+		# print result
+		#print result
+		queue.put(result)
+	print 'done'
+	return
 
 def gensim_on_results(binding):
 	print 'fetching gensim results'
@@ -259,7 +326,7 @@ def gensim_on_results(binding):
 	sims_count = 0
 	out_results = []
 	for result in results:
-		result.append(out_sims[sims_count])
+		result.append(out_sims[sims_count][1])
 		out_results.append(result)
 		sims_count = sims_count + 1
 
@@ -269,6 +336,8 @@ def gensim_on_results(binding):
 	session['active_data'][0] = out_results
 
 	return
+
+
 
 if __name__ == '__main__':
 	app.secret_key = 'keyboard cat'

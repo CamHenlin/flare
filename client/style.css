@@ -263,3 +263,41 @@ div {
 	background-color: #eee;
 	color: black;
 }
+
+.visualizationContainer {
+	background-color: #FFF;
+	border-radius: 3px;
+	border: 2px solid #A9A9A9;
+	margin: 5px;
+	box-shadow: 1px 1px 2px #D3D3D3;
+	z-index: 9999;
+	position: absolute;
+	width: 90%;
+	left: 5%;
+	height: 75%;
+	top: 20%;
+}
+
+.visualizationHeader {
+	background-color: teal;
+	padding: 5px;
+	margin-bottom: 5px;
+	color: white;
+}
+
+.visualizationFormContainer {
+	width: 20%;
+	float: left;
+}
+
+.visualizationColumnButton {
+	height: 25px;
+	width: 75px;
+	border-radius: 3px;
+	border: 2px lightgray solid;
+	margin-left: 5px;
+	text-align: center;
+	box-shadow: 1px 1px 2px lightgray;
+	background-color: #eee;
+	color: black;
+}
