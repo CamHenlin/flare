@@ -341,4 +341,4 @@ def gensim_on_results(binding):
 
 if __name__ == '__main__':
 	app.secret_key = 'keyboard cat'
-	app.run(debug = True, host='0.0.0.0', port = 7000)
+	app.run(debug = True, host='0.0.0.0', port = 80)
