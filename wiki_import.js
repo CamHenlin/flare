@@ -53,7 +53,7 @@ lineReader.eachLine('enwiki-20140903-pages-articles.xml', function(line) {
 });
 
 function sendArticle(article) {
-	if (count > 1783752) {
+	if (count > 2087249) {
 		//console.log(JSON.stringify({title: article.title, timestamp: article.timestamp, text: article.text}));
 		crate.connect ('http://10.0.1.17:4200');
 		//// or crate.connect ('http://localhost:4200')

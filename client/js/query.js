@@ -62,7 +62,7 @@ var QueryView = Backbone.View.extend({
 
 		console.log(postData);
 		$.ajax({
-			url: 'http://67.189.44.237:7000/query',
+			url: baseurl + 'query',
 			type: 'POST',
 			contentType: 'application/json;charset=UTF-8',
 			data: JSON.stringify(postData, null, '\t'),
