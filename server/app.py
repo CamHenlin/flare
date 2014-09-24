@@ -120,7 +120,7 @@ def root():
 
 @app.route('/client/<path:filename>')
 def send_foo(filename):
-    return send_from_directory('/Users/camhenlin/Documents/flare/client/', filename)
+    return send_from_directory('/home/flare/flare/client/', filename)
 
 @app.route('/tables', methods = ['GET'])
 def getTables():

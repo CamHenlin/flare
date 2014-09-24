@@ -61,13 +61,13 @@ var sentimentView = new SentimentView({model : new SentimentModel()});*/
 
 	jsPlumb.setContainer($('body'));
 	$.ajax({
-		url: 'http://67.189.44.237:7000/tables',
+		url: baseurl + 'tables',
 		type: 'GET',
 		success: function(data) {
 			console.log(data.tables);
 			data.tables.forEach(function(table) {
 				$.ajax({
-					url: 'http://67.189.44.237:7000/columns/' + table,
+					url: baseurl + 'columns/' + table,
 					type: 'GET',
 					success: function(tdata) {
 						//tdata = JSON.parse(tdata);
