@@ -72,7 +72,8 @@ var QueryView = Backbone.View.extend({
 				resultData = data;
 				// $('#queryResults').append(JSON.stringify(data.results));
 
-				$('#resultCount').text(data.results.length + ' results');
+				$('#resultCount').text(data.results.length + ' tweets');
+				$('#resultCount').attr('style', 'font-size: 22px;');
 				var table = '<table id="outtable"><tr>';
 				for (var i in tables[0].tableColumns) {
 					if (tables[0].tableColumns[i].indexOf('[') !== -1) { continue; } // throw out object children
@@ -84,6 +85,10 @@ var QueryView = Backbone.View.extend({
 					var row = '<tr>';
 					$('#outtable').append('<tr>');
 					for (var j in result) {
+						if (j > 100) {
+							continue;
+						}
+
 						row += '<td class="queryResult">' + JSON.stringify(result[j]) + '</td>';
 					}
 					table += row + '</tr>';
