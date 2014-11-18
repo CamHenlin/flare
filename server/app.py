@@ -125,7 +125,7 @@ def send_foo(filename):
 @app.route('/tables', methods = ['GET'])
 def getTables():
 	print 'fetching tables listing'
-	connection = client.connect('http://10.0.1.17:4200')
+	connection = client.connect('http://10.0.1.14:4200')
 	cursor = connection.cursor()
 
 	cursor.execute("select table_name from information_schema.tables where schema_name = 'doc'")
@@ -145,7 +145,7 @@ def getTables():
 @app.route('/columns/<table>', methods = ['GET'])
 def getColumns(table):
 	print 'fetching column listing'
-	connection = client.connect('http://10.0.1.17:4200')
+	connection = client.connect('http://10.0.1.14:4200')
 	cursor = connection.cursor()
 
 	cursor.execute("select table_name, column_name, data_type from information_schema.columns where schema_name = 'doc' and table_name = '" + table + "'")
@@ -190,7 +190,7 @@ def queryData():
 	return jsonify({ 'results' : session['active_data'][0] })
 
 def select_from_table(binding, limit):
-	connection = client.connect('http://10.0.1.17:4200')
+	connection = client.connect('http://10.0.1.14:4200')
 	cursor = connection.cursor()
 
 	if (limit == 0):

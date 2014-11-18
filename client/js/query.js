@@ -86,7 +86,7 @@ var QueryView = Backbone.View.extend({
 					$('#outtable').append('<tr>');
 					for (var j in result) {
 						if (j > 100) {
-							continue;
+							break;
 						}
 
 						row += '<td class="queryResult">' + JSON.stringify(result[j]) + '</td>';
